@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Students Database - Добавление данных</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Students Database</h1>
+            <nav class="nav">
+                <a href="index.html">Получение данных</a>
+                <a href="add.html" class="active">Добавление данных</a>
+            </nav>
+        </div>
+
+        <!-- Добавление студента -->
+        <div class="section">
+            <h3>Добавить студента</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="studentName">Полное имя:</label>
+                    <input type="text" id="studentName" placeholder="Иванов Иван Иванович">
+                </div>
+                <div class="form-group">
+                    <label for="studentBirthDate">Дата рождения:</label>
+                    <input type="date" id="studentBirthDate">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group small">
+                    <label for="studentAdmissionYear">Год поступления:</label>
+                    <input type="number" id="studentAdmissionYear" placeholder="2023" min="1900" max="2030">
+                </div>
+                <div class="form-group small">
+                    <label for="studentScholarship">Стипендия:</label>
+                    <input type="number" id="studentScholarship" placeholder="2000.00" step="0.01" min="0">
+                </div>
+                <div class="form-group">
+                    <label for="studentDepartment">Департамент:</label>
+                    <select id="studentDepartment">
+                        <option value="">Выберите департамент</option>
+                    </select>
+                </div>
+            </div>
+            <button onclick="addStudent()">Добавить студента</button>
+            <div id="addStudentResult" class="result-container"></div>
+        </div>
+
+        <!-- Добавление департамента -->
+        <div class="section">
+            <h3>Добавить департамент</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="departmentName">Название:</label>
+                    <input type="text" id="departmentName" placeholder="Информационные технологии">
+                </div>
+                <div class="form-group">
+                    <label for="departmentDean">Декан:</label>
+                    <input type="text" id="departmentDean" placeholder="Профессор Иванов И.И.">
+                </div>
+                <div class="form-group small">
+                    <label for="departmentBuilding">Корпус:</label>
+                    <input type="text" id="departmentBuilding" placeholder="Корпус 1">
+                </div>
+            </div>
+            <button onclick="addDepartment()">Добавить департамент</button>
+            <div id="addDepartmentResult" class="result-container"></div>
+        </div>
+
+        <!-- Обновление студента -->
+        <div class="section">
+            <h3>Обновить студента</h3>
+            <div class="form-row">
+                <div class="form-group small">
+                    <label for="updateStudentId">Student ID:</label>
+                    <input type="number" id="updateStudentId" placeholder="1">
+                </div>
+                <button onclick="loadStudentForUpdate()">Загрузить данные</button>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="updateStudentName">Полное имя:</label>
+                    <input type="text" id="updateStudentName" placeholder="Иванов Иван Иванович">
+                </div>
+                <div class="form-group">
+                    <label for="updateStudentBirthDate">Дата рождения:</label>
+                    <input type="date" id="updateStudentBirthDate">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group small">
+                    <label for="updateStudentAdmissionYear">Год поступления:</label>
+                    <input type="number" id="updateStudentAdmissionYear" placeholder="2023">
+                </div>
+                <div class="form-group small">
+                    <label for="updateStudentScholarship">Стипендия:</label>
+                    <input type="number" id="updateStudentScholarship" placeholder="2000.00" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label for="updateStudentDepartment">Департамент:</label>
+                    <select id="updateStudentDepartment">
+                        <option value="">Выберите департамент</option>
+                    </select>
+                </div>
+            </div>
+            <button onclick="updateStudent()">Обновить студента</button>
+            <div id="updateStudentResult" class="result-container"></div>
+        </div>
+
+        <!-- Удаление студента -->
+        <div class="section">
+            <h3>Удалить студента</h3>
+            <div class="form-row">
+                <div class="form-group small">
+                    <label for="deleteStudentId">Student ID:</label>
+                    <input type="number" id="deleteStudentId" placeholder="1">
+                </div>
+                <button onclick="deleteStudent()" style="background: linear-gradient(135deg, #d32f2f 0%, #f44336 100%);">Удалить студента</button>
+            </div>
+            <div id="deleteStudentResult" class="result-container"></div>
+        </div>
+    </div>
+
+    <!-- API Monitor -->
+    <div class="sql-monitor">
+        <h4>API Мониторинг</h4>
+        <div id="apiLog"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
