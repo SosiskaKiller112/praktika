@@ -1,489 +1,430 @@
-// Базовый URL для API (замените на ваш)
-const API_BASE_URL = "http://localhost:8080/api"
+// Конфигурация API
+const API_CONFIG = {
+  BASE_URL: "http://localhost:8080/api",
+  LOG_LIMIT: 8,
+  DEFAULT_STUDENT_LIMIT: 50
+};
 
-// API лог
-const apiLog = []
+// API логгер
+const apiLogger = {
+  logs: [],
 
-// Функция для логирования API вызовов
-function logApi(method, url, result = null, error = null) {
-  const timestamp = new Date().toLocaleTimeString()
-  const logEntry = {
-    timestamp,
-    method,
-    url,
-    result,
-    error,
+  add(method, url, result = null, error = null) {
+    const timestamp = new Date().toLocaleTimeString();
+    const logEntry = { timestamp, method, url, result, error };
+
+    this.logs.unshift(logEntry);
+    if (this.logs.length > API_CONFIG.LOG_LIMIT) this.logs.pop();
+
+    this.updateDisplay();
+  },
+
+  updateDisplay() {
+    const apiLogElement = document.getElementById("apiLog");
+    if (!apiLogElement) return;
+
+    apiLogElement.innerHTML = this.logs.map(entry => `
+      <div class="api-call">[${entry.timestamp}] ${entry.method} ${entry.url}</div>
+      ${entry.result ? `<div class="api-result">✓ ${this.formatResult(entry.result)}</div>` : ''}
+      ${entry.error ? `<div class="error">✗ Ошибка: ${entry.error}</div>` : ''}
+    `).join('');
+  },
+
+  formatResult(result) {
+    if (typeof result === 'string') return result;
+    if (Array.isArray(result)) return `${result.length} записей`;
+    if (typeof result === 'object') return JSON.stringify(result).substring(0, 80) + '...';
+    return result;
   }
+};
 
-  apiLog.unshift(logEntry)
-  if (apiLog.length > 8) apiLog.pop() // Оставляем только последние 8 вызовов
+// Утилиты для работы с DOM
+const domUtils = {
+  showLoading(containerId) {
+    this.setContent(containerId, '<div class="loading">Загрузка...</div>');
+  },
 
-  updateApiMonitor()
-}
+  showError(containerId, message) {
+    this.setContent(containerId, `<div class="error">Ошибка: ${message}</div>`);
+  },
 
-// Обновление монитора API
-function updateApiMonitor() {
-  const apiLogElement = document.getElementById("apiLog")
-  if (!apiLogElement) return
+  showSuccess(containerId, message) {
+    this.setContent(containerId, `<div class="success">${message}</div>`);
+  },
 
-  apiLogElement.innerHTML = apiLog
-    .map(
-      (entry) => `
-        <div class="api-call">[${entry.timestamp}] ${entry.method} ${entry.url}</div>
-        ${entry.result ? `<div class="api-result">✓ Успешно: ${typeof entry.result === "object" ? JSON.stringify(entry.result).substring(0, 80) + "..." : entry.result}</div>` : ""}
-        ${entry.error ? `<div class="error">✗ Ошибка: ${entry.error}</div>` : ""}
-    `,
-    )
-    .join("")
-}
+  setContent(containerId, content) {
+    const container = document.getElementById(containerId);
+    if (container) container.innerHTML = content;
+  },
 
-// Функции для отображения состояний
-function showLoading(containerId) {
-  const container = document.getElementById(containerId)
-  if (container) {
-    container.innerHTML = '<div class="loading">Загрузка...</div>'
-  }
-}
-
-function showError(containerId, message) {
-  const container = document.getElementById(containerId)
-  if (container) {
-    container.innerHTML = `<div class="error">Ошибка: ${message}</div>`
-  }
-}
-
-function showSuccess(containerId, message) {
-  const container = document.getElementById(containerId)
-  if (container) {
-    container.innerHTML = `<div class="success">${message}</div>`
-  }
-}
-
-// Функция для создания таблицы из данных
-function createTable(data) {
-  if (!data || data.length === 0) {
-    return '<div class="error">Нет данных для отображения</div>'
-  }
-
-  const headers = Object.keys(data[0])
-  let html = "<table><thead><tr>"
-
-  headers.forEach((header) => {
-    html += `<th>${header}</th>`
-  })
-
-  html += "</tr></thead><tbody>"
-
-  data.forEach((row) => {
-    html += "<tr>"
-    headers.forEach((header) => {
-      const value = row[header]
-      html += `<td>${value !== null && value !== undefined ? value : ""}</td>`
-    })
-    html += "</tr>"
-  })
-
-  html += "</tbody></table>"
-  return html
-}
-
-// Загрузка департаментов в селекты
-async function loadDepartments() {
-  try {
-    const response = await fetch(`${API_BASE_URL}/departments`)
-    const departments = await response.json()
-
-    if (response.ok) {
-      const selects = document.querySelectorAll("#departmentSelect, #studentDepartment, #updateStudentDepartment")
-      selects.forEach((select) => {
-        select.innerHTML = '<option value="">Выберите департамент</option>'
-        departments.forEach((dept) => {
-          select.innerHTML += `<option value="${dept.departmentId}">${dept.name}</option>`
-        })
-      })
+  createTable(data) {
+    if (!data || !Array.isArray(data) || data.length === 0) {
+      return '<div class="error">Нет данных для отображения</div>';
     }
-  } catch (error) {
-    console.error("Ошибка загрузки департаментов:", error)
+
+    const headers = Object.keys(data[0]);
+    let html = '<table><thead><tr>';
+
+    headers.forEach(header => {
+      html += `<th>${header}</th>`;
+    });
+
+    html += '</tr></thead><tbody>';
+
+    data.forEach(row => {
+      html += '<tr>';
+      headers.forEach(header => {
+        const value = row[header];
+        html += `<td>${value !== null && value !== undefined ? value : ''}</td>`;
+      });
+      html += '</tr>';
+    });
+
+    return html + '</tbody></table>';
+  },
+
+  clearForm(formId) {
+    const form = document.getElementById(formId);
+    if (form) form.reset();
   }
-}
+};
 
-// Получить студента по ID
-async function getStudent() {
-  const studentId = document.getElementById("studentId")?.value
+// API сервисы
+const apiService = {
+  async request(url, method = 'GET', data = null) {
+    const options = {
+      method,
+      headers: { 'Content-Type': 'application/json' }
+    };
 
-  if (!studentId) {
-    showError("studentResult", "Введите ID студента")
-    return
-  }
+    if (data) options.body = JSON.stringify(data);
 
-  const url = `${API_BASE_URL}/students/${studentId}`
-  logApi("GET", url)
-  showLoading("studentResult")
+    try {
+      const response = await fetch(`${API_CONFIG.BASE_URL}${url}`, options);
+      const result = await response.json();
 
-  try {
-    const response = await fetch(url)
-    const data = await response.json()
+      if (!response.ok) {
+        throw new Error(result.message || 'Ошибка сервера');
+      }
 
-    if (response.ok) {
-      document.getElementById("studentResult").innerHTML = createTable([data])
-      logApi("GET", url, data)
-    } else {
-      showError("studentResult", data.message || "Студент не найден")
-      logApi("GET", url, null, data.message)
+      return result;
+    } catch (error) {
+      console.error(`API Error: ${method} ${url}`, error);
+      throw error;
     }
-  } catch (error) {
-    showError("studentResult", "Ошибка соединения с сервером")
-    logApi("GET", url, null, error.message)
+  },
+
+  async get(url) {
+    return this.request(url);
+  },
+
+  async post(url, data) {
+    return this.request(url, 'POST', data);
+  },
+
+  async put(url, data) {
+    return this.request(url, 'PUT', data);
+  },
+
+  async delete(url) {
+    return this.request(url, 'DELETE');
   }
-}
+};
 
-// Получить всех студентов
-async function getAllStudents() {
-  const limit = document.getElementById("studentsLimit")?.value || 50
-  const url = `${API_BASE_URL}/students?limit=${limit}`
-
-  logApi("GET", url)
-  showLoading("studentsResult")
-
-  try {
-    const response = await fetch(url)
-    const data = await response.json()
-
-    if (response.ok) {
-      document.getElementById("studentsResult").innerHTML = createTable(data)
-      logApi("GET", url, `${data.length} студентов`)
-    } else {
-      showError("studentsResult", data.message || "Ошибка получения данных")
-      logApi("GET", url, null, data.message)
+// Сервис для работы с департаментами
+const departmentService = {
+  async loadDepartments() {
+    try {
+      const departments = await apiService.get('/departments');
+      this.updateDepartmentSelects(departments);
+      return departments;
+    } catch (error) {
+      console.error('Ошибка загрузки департаментов:', error);
+      throw error;
     }
-  } catch (error) {
-    showError("studentsResult", "Ошибка соединения с сервером")
-    logApi("GET", url, null, error.message)
+  },
+
+  updateDepartmentSelects(departments) {
+    const selects = document.querySelectorAll('.department-select');
+    selects.forEach(select => {
+      select.innerHTML = '<option value="">Выберите департамент</option>';
+      departments.forEach(dept => {
+        select.innerHTML += `<option value="${dept.departmentId}">${dept.name}</option>`;
+      });
+    });
+  },
+
+  async getDepartment(departmentId) {
+    if (!departmentId) throw new Error('Введите ID департамента');
+    return apiService.get(`/departments/${departmentId}`);
+  },
+
+  async getAllDepartments() {
+    return apiService.get('/departments');
+  },
+
+  async addDepartment(departmentData) {
+    if (!departmentData.name) throw new Error('Введите название департамента');
+    return apiService.post('/departments', departmentData);
   }
-}
+};
 
-// Получить студентов по департаменту
-async function getStudentsByDepartment() {
-  const departmentId = document.getElementById("departmentSelect")?.value
+// Сервис для работы со студентами
+const studentService = {
+  async getStudent(studentId) {
+    if (!studentId) throw new Error('Введите ID студента');
+    return apiService.get(`/students/${studentId}`);
+  },
 
-  if (!departmentId) {
-    showError("departmentStudentsResult", "Выберите департамент")
-    return
-  }
+  async getAllStudents(limit = API_CONFIG.DEFAULT_STUDENT_LIMIT) {
+    return apiService.get(`/students?limit=${limit}`);
+  },
 
-  const url = `${API_BASE_URL}/students/department/${departmentId}`
-  logApi("GET", url)
-  showLoading("departmentStudentsResult")
+  async getStudentsByDepartment(departmentId) {
+    if (!departmentId) throw new Error('Выберите департамент');
+    return apiService.get(`/students/department/${departmentId}`);
+  },
 
-  try {
-    const response = await fetch(url)
-    const data = await response.json()
+  async searchStudents(query) {
+    if (!query) throw new Error('Введите поисковый запрос');
+    return apiService.get(`/students/search?name=${encodeURIComponent(query)}`);
+  },
 
-    if (response.ok) {
-      document.getElementById("departmentStudentsResult").innerHTML = createTable(data)
-      logApi("GET", url, `${data.length} студентов`)
-    } else {
-      showError("departmentStudentsResult", data.message || "Ошибка получения данных")
-      logApi("GET", url, null, data.message)
+  async addStudent(studentData) {
+    if (!studentData.fullName || !studentData.birthDate || 
+        !studentData.admissionYear || !studentData.departmentId) {
+      throw new Error('Заполните все обязательные поля');
     }
-  } catch (error) {
-    showError("departmentStudentsResult", "Ошибка соединения с сервером")
-    logApi("GET", url, null, error.message)
+    return apiService.post('/students', studentData);
+  },
+
+  async updateStudent(studentId, studentData) {
+    if (!studentId) throw new Error('Введите ID студента');
+    return apiService.put(`/students/${studentId}`, studentData);
+  },
+
+  async deleteStudent(studentId) {
+    if (!studentId) throw new Error('Введите ID студента');
+    if (!confirm('Вы уверены, что хотите удалить этого студента?')) return;
+    return apiService.delete(`/students/${studentId}`);
   }
-}
+};
 
-// Получить департамент по ID
-async function getDepartment() {
-  const departmentId = document.getElementById("departmentId")?.value
-
-  if (!departmentId) {
-    showError("departmentResult", "Введите ID департамента")
-    return
-  }
-
-  const url = `${API_BASE_URL}/departments/${departmentId}`
-  logApi("GET", url)
-  showLoading("departmentResult")
-
-  try {
-    const response = await fetch(url)
-    const data = await response.json()
-
-    if (response.ok) {
-      document.getElementById("departmentResult").innerHTML = createTable([data])
-      logApi("GET", url, data)
-    } else {
-      showError("departmentResult", data.message || "Департамент не найден")
-      logApi("GET", url, null, data.message)
+// Обработчики UI событий
+const eventHandlers = {
+  async handleGetStudent() {
+    const studentId = document.getElementById("studentId")?.value;
+    
+    try {
+      apiLogger.add('GET', `/students/${studentId}`);
+      domUtils.showLoading("studentResult");
+      
+      const student = await studentService.getStudent(studentId);
+      domUtils.setContent("studentResult", domUtils.createTable([student]));
+      apiLogger.add('GET', `/students/${studentId}`, student);
+    } catch (error) {
+      domUtils.showError("studentResult", error.message);
+      apiLogger.add('GET', `/students/${studentId}`, null, error.message);
     }
-  } catch (error) {
-    showError("departmentResult", "Ошибка соединения с сервером")
-    logApi("GET", url, null, error.message)
-  }
-}
+  },
 
-// Получить все департаменты
-async function getAllDepartments() {
-  const url = `${API_BASE_URL}/departments`
-  logApi("GET", url)
-  showLoading("departmentsResult")
-
-  try {
-    const response = await fetch(url)
-    const data = await response.json()
-
-    if (response.ok) {
-      document.getElementById("departmentsResult").innerHTML = createTable(data)
-      logApi("GET", url, `${data.length} департаментов`)
-    } else {
-      showError("departmentsResult", data.message || "Ошибка получения данных")
-      logApi("GET", url, null, data.message)
+  async handleGetAllStudents() {
+    const limit = document.getElementById("studentsLimit")?.value || API_CONFIG.DEFAULT_STUDENT_LIMIT;
+    
+    try {
+      apiLogger.add('GET', `/students?limit=${limit}`);
+      domUtils.showLoading("studentsResult");
+      
+      const students = await studentService.getAllStudents(limit);
+      domUtils.setContent("studentsResult", domUtils.createTable(students));
+      apiLogger.add('GET', `/students?limit=${limit}`, `${students.length} студентов`);
+    } catch (error) {
+      domUtils.showError("studentsResult", error.message);
+      apiLogger.add('GET', `/students?limit=${limit}`, null, error.message);
     }
-  } catch (error) {
-    showError("departmentsResult", "Ошибка соединения с сервером")
-    logApi("GET", url, null, error.message)
-  }
-}
+  },
 
-// Поиск студентов
-async function searchStudents() {
-  const query = document.getElementById("searchQuery")?.value
-
-  if (!query) {
-    showError("searchResult", "Введите поисковый запрос")
-    return
-  }
-
-  const url = `${API_BASE_URL}/students/search?name=${encodeURIComponent(query)}`
-  logApi("GET", url)
-  showLoading("searchResult")
-
-  try {
-    const response = await fetch(url)
-    const data = await response.json()
-
-    if (response.ok) {
-      document.getElementById("searchResult").innerHTML = createTable(data)
-      logApi("GET", url, `${data.length} результатов`)
-    } else {
-      showError("searchResult", data.message || "Ошибка поиска")
-      logApi("GET", url, null, data.message)
+  async handleGetStudentsByDepartment() {
+    const departmentId = document.getElementById("departmentSelect")?.value;
+    
+    try {
+      apiLogger.add('GET', `/students/department/${departmentId}`);
+      domUtils.showLoading("departmentStudentsResult");
+      
+      const students = await studentService.getStudentsByDepartment(departmentId);
+      domUtils.setContent("departmentStudentsResult", domUtils.createTable(students));
+      apiLogger.add('GET', `/students/department/${departmentId}`, `${students.length} студентов`);
+    } catch (error) {
+      domUtils.showError("departmentStudentsResult", error.message);
+      apiLogger.add('GET', `/students/department/${departmentId}`, null, error.message);
     }
-  } catch (error) {
-    showError("searchResult", "Ошибка соединения с сервером")
-    logApi("GET", url, null, error.message)
-  }
-}
+  },
 
-// Добавить студента
-async function addStudent() {
-  const studentData = {
-    fullName: document.getElementById("studentName")?.value,
-    birthDate: document.getElementById("studentBirthDate")?.value,
-    admissionYear: Number.parseInt(document.getElementById("studentAdmissionYear")?.value),
-    scholarship: Number.parseFloat(document.getElementById("studentScholarship")?.value) || 0,
-    departmentId: Number.parseInt(document.getElementById("studentDepartment")?.value),
-  }
-
-  if (!studentData.fullName || !studentData.birthDate || !studentData.admissionYear || !studentData.departmentId) {
-    showError("addStudentResult", "Заполните все обязательные поля")
-    return
-  }
-
-  const url = `${API_BASE_URL}/students`
-  logApi("POST", url)
-  showLoading("addStudentResult")
-
-  try {
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(studentData),
-    })
-
-    const result = await response.json()
-
-    if (response.ok) {
-      showSuccess("addStudentResult", "Студент успешно добавлен")
-      // Очистить форму
-      document.getElementById("studentName").value = ""
-      document.getElementById("studentBirthDate").value = ""
-      document.getElementById("studentAdmissionYear").value = ""
-      document.getElementById("studentScholarship").value = ""
-      document.getElementById("studentDepartment").value = ""
-      logApi("POST", url, "Студент добавлен")
-    } else {
-      showError("addStudentResult", result.message || "Ошибка добавления студента")
-      logApi("POST", url, null, result.message)
+  async handleGetDepartment() {
+    const departmentId = document.getElementById("departmentId")?.value;
+    
+    try {
+      apiLogger.add('GET', `/departments/${departmentId}`);
+      domUtils.showLoading("departmentResult");
+      
+      const department = await departmentService.getDepartment(departmentId);
+      domUtils.setContent("departmentResult", domUtils.createTable([department]));
+      apiLogger.add('GET', `/departments/${departmentId}`, department);
+    } catch (error) {
+      domUtils.showError("departmentResult", error.message);
+      apiLogger.add('GET', `/departments/${departmentId}`, null, error.message);
     }
-  } catch (error) {
-    showError("addStudentResult", "Ошибка соединения с сервером")
-    logApi("POST", url, null, error.message)
-  }
-}
+  },
 
-// Добавить департамент
-async function addDepartment() {
-  const departmentData = {
-    name: document.getElementById("departmentName")?.value,
-    dean: document.getElementById("departmentDean")?.value,
-    building: document.getElementById("departmentBuilding")?.value,
-  }
-
-  if (!departmentData.name) {
-    showError("addDepartmentResult", "Введите название департамента")
-    return
-  }
-
-  const url = `${API_BASE_URL}/departments`
-  logApi("POST", url)
-  showLoading("addDepartmentResult")
-
-  try {
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(departmentData),
-    })
-
-    const result = await response.json()
-
-    if (response.ok) {
-      showSuccess("addDepartmentResult", "Департамент успешно добавлен")
-      // Очистить форму
-      document.getElementById("departmentName").value = ""
-      document.getElementById("departmentDean").value = ""
-      document.getElementById("departmentBuilding").value = ""
-      // Обновить списки департаментов
-      loadDepartments()
-      logApi("POST", url, "Департамент добавлен")
-    } else {
-      showError("addDepartmentResult", result.message || "Ошибка добавления департамента")
-      logApi("POST", url, null, result.message)
+  async handleGetAllDepartments() {
+    try {
+      apiLogger.add('GET', '/departments');
+      domUtils.showLoading("departmentsResult");
+      
+      const departments = await departmentService.getAllDepartments();
+      domUtils.setContent("departmentsResult", domUtils.createTable(departments));
+      apiLogger.add('GET', '/departments', `${departments.length} департаментов`);
+    } catch (error) {
+      domUtils.showError("departmentsResult", error.message);
+      apiLogger.add('GET', '/departments', null, error.message);
     }
-  } catch (error) {
-    showError("addDepartmentResult", "Ошибка соединения с сервером")
-    logApi("POST", url, null, error.message)
-  }
-}
+  },
 
-// Загрузить студента для обновления
-async function loadStudentForUpdate() {
-  const studentId = document.getElementById("updateStudentId")?.value
-
-  if (!studentId) {
-    showError("updateStudentResult", "Введите ID студента")
-    return
-  }
-
-  const url = `${API_BASE_URL}/students/${studentId}`
-
-  try {
-    const response = await fetch(url)
-    const student = await response.json()
-
-    if (response.ok) {
-      document.getElementById("updateStudentName").value = student.fullName || ""
-      document.getElementById("updateStudentBirthDate").value = student.birthDate || ""
-      document.getElementById("updateStudentAdmissionYear").value = student.admissionYear || ""
-      document.getElementById("updateStudentScholarship").value = student.scholarship || ""
-      document.getElementById("updateStudentDepartment").value = student.departmentId || ""
-      showSuccess("updateStudentResult", "Данные студента загружены")
-    } else {
-      showError("updateStudentResult", "Студент не найден")
+  async handleSearchStudents() {
+    const query = document.getElementById("searchQuery")?.value;
+    
+    try {
+      apiLogger.add('GET', `/students/search?name=${encodeURIComponent(query)}`);
+      domUtils.showLoading("searchResult");
+      
+      const students = await studentService.searchStudents(query);
+      domUtils.setContent("searchResult", domUtils.createTable(students));
+      apiLogger.add('GET', `/students/search?name=${encodeURIComponent(query)}`, `${students.length} результатов`);
+    } catch (error) {
+      domUtils.showError("searchResult", error.message);
+      apiLogger.add('GET', `/students/search?name=${encodeURIComponent(query)}`, null, error.message);
     }
-  } catch (error) {
-    showError("updateStudentResult", "Ошибка загрузки данных")
-  }
-}
+  },
 
-// Обновить студента
-async function updateStudent() {
-  const studentId = document.getElementById("updateStudentId")?.value
-
-  if (!studentId) {
-    showError("updateStudentResult", "Введите ID студента")
-    return
-  }
-
-  const studentData = {
-    fullName: document.getElementById("updateStudentName")?.value,
-    birthDate: document.getElementById("updateStudentBirthDate")?.value,
-    admissionYear: Number.parseInt(document.getElementById("updateStudentAdmissionYear")?.value),
-    scholarship: Number.parseFloat(document.getElementById("updateStudentScholarship")?.value) || 0,
-    departmentId: Number.parseInt(document.getElementById("updateStudentDepartment")?.value),
-  }
-
-  const url = `${API_BASE_URL}/students/${studentId}`
-  logApi("PUT", url)
-  showLoading("updateStudentResult")
-
-  try {
-    const response = await fetch(url, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(studentData),
-    })
-
-    const result = await response.json()
-
-    if (response.ok) {
-      showSuccess("updateStudentResult", "Студент успешно обновлен")
-      logApi("PUT", url, "Студент обновлен")
-    } else {
-      showError("updateStudentResult", result.message || "Ошибка обновления студента")
-      logApi("PUT", url, null, result.message)
+  async handleAddStudent() {
+    const studentData = {
+      fullName: document.getElementById("studentName")?.value,
+      birthDate: document.getElementById("studentBirthDate")?.value,
+      admissionYear: Number(document.getElementById("studentAdmissionYear")?.value),
+      scholarship: Number(document.getElementById("studentScholarship")?.value) || 0,
+      departmentId: Number(document.getElementById("studentDepartment")?.value),
+    };
+    
+    try {
+      apiLogger.add('POST', '/students');
+      domUtils.showLoading("addStudentResult");
+      
+      await studentService.addStudent(studentData);
+      domUtils.showSuccess("addStudentResult", "Студент успешно добавлен");
+      domUtils.clearForm("addStudentForm");
+      apiLogger.add('POST', '/students', 'Студент добавлен');
+    } catch (error) {
+      domUtils.showError("addStudentResult", error.message);
+      apiLogger.add('POST', '/students', null, error.message);
     }
-  } catch (error) {
-    showError("updateStudentResult", "Ошибка соединения с сервером")
-    logApi("PUT", url, null, error.message)
-  }
-}
+  },
 
-// Удалить студента
-async function deleteStudent() {
-  const studentId = document.getElementById("deleteStudentId")?.value
-
-  if (!studentId) {
-    showError("deleteStudentResult", "Введите ID студента")
-    return
-  }
-
-  if (!confirm("Вы уверены, что хотите удалить этого студента?")) {
-    return
-  }
-
-  const url = `${API_BASE_URL}/students/${studentId}`
-  logApi("DELETE", url)
-  showLoading("deleteStudentResult")
-
-  try {
-    const response = await fetch(url, {
-      method: "DELETE",
-    })
-
-    if (response.ok) {
-      showSuccess("deleteStudentResult", "Студент успешно удален")
-      document.getElementById("deleteStudentId").value = ""
-      logApi("DELETE", url, "Студент удален")
-    } else {
-      const result = await response.json()
-      showError("deleteStudentResult", result.message || "Ошибка удаления студента")
-      logApi("DELETE", url, null, result.message)
+  async handleAddDepartment() {
+    const departmentData = {
+      name: document.getElementById("departmentName")?.value,
+      dean: document.getElementById("departmentDean")?.value,
+      building: document.getElementById("departmentBuilding")?.value,
+    };
+    
+    try {
+      apiLogger.add('POST', '/departments');
+      domUtils.showLoading("addDepartmentResult");
+      
+      await departmentService.addDepartment(departmentData);
+      domUtils.showSuccess("addDepartmentResult", "Департамент успешно добавлен");
+      domUtils.clearForm("addDepartmentForm");
+      await departmentService.loadDepartments();
+      apiLogger.add('POST', '/departments', 'Департамент добавлен');
+    } catch (error) {
+      domUtils.showError("addDepartmentResult", error.message);
+      apiLogger.add('POST', '/departments', null, error.message);
     }
-  } catch (error) {
-    showError("deleteStudentResult", "Ошибка соединения с сервером")
-    logApi("DELETE", url, null, error.message)
-  }
-}
+  },
 
-// Инициализация при загрузке страницы
+  async handleLoadStudentForUpdate() {
+    const studentId = document.getElementById("updateStudentId")?.value;
+    
+    try {
+      const student = await studentService.getStudent(studentId);
+      
+      document.getElementById("updateStudentName").value = student.fullName || '';
+      document.getElementById("updateStudentBirthDate").value = student.birthDate || '';
+      document.getElementById("updateStudentAdmissionYear").value = student.admissionYear || '';
+      document.getElementById("updateStudentScholarship").value = student.scholarship || '';
+      document.getElementById("updateStudentDepartment").value = student.departmentId || '';
+      
+      domUtils.showSuccess("updateStudentResult", "Данные студента загружены");
+    } catch (error) {
+      domUtils.showError("updateStudentResult", error.message);
+    }
+  },
+
+  async handleUpdateStudent() {
+    const studentId = document.getElementById("updateStudentId")?.value;
+    const studentData = {
+      fullName: document.getElementById("updateStudentName")?.value,
+      birthDate: document.getElementById("updateStudentBirthDate")?.value,
+      admissionYear: Number(document.getElementById("updateStudentAdmissionYear")?.value),
+      scholarship: Number(document.getElementById("updateStudentScholarship")?.value) || 0,
+      departmentId: Number(document.getElementById("updateStudentDepartment")?.value),
+    };
+    
+    try {
+      apiLogger.add('PUT', `/students/${studentId}`);
+      domUtils.showLoading("updateStudentResult");
+      
+      await studentService.updateStudent(studentId, studentData);
+      domUtils.showSuccess("updateStudentResult", "Студент успешно обновлен");
+      apiLogger.add('PUT', `/students/${studentId}`, 'Студент обновлен');
+    } catch (error) {
+      domUtils.showError("updateStudentResult", error.message);
+      apiLogger.add('PUT', `/students/${studentId}`, null, error.message);
+    }
+  },
+
+  async handleDeleteStudent() {
+    const studentId = document.getElementById("deleteStudentId")?.value;
+    
+    try {
+      apiLogger.add('DELETE', `/students/${studentId}`);
+      domUtils.showLoading("deleteStudentResult");
+      
+      await studentService.deleteStudent(studentId);
+      domUtils.showSuccess("deleteStudentResult", "Студент успешно удален");
+      document.getElementById("deleteStudentId").value = '';
+      apiLogger.add('DELETE', `/students/${studentId}`, 'Студент удален');
+    } catch (error) {
+      domUtils.showError("deleteStudentResult", error.message);
+      apiLogger.add('DELETE', `/students/${studentId}`, null, error.message);
+    }
+  }
+};
+
+// Инициализация приложения
 document.addEventListener("DOMContentLoaded", () => {
-  loadDepartments()
-})
+  // Загрузка департаментов
+  departmentService.loadDepartments().catch(console.error);
+  
+  // Назначение обработчиков событий
+  document.getElementById("getStudentBtn")?.addEventListener("click", () => eventHandlers.handleGetStudent());
+  document.getElementById("getAllStudentsBtn")?.addEventListener("click", () => eventHandlers.handleGetAllStudents());
+  document.getElementById("getStudentsByDepartmentBtn")?.addEventListener("click", () => eventHandlers.handleGetStudentsByDepartment());
+  document.getElementById("getDepartmentBtn")?.addEventListener("click", () => eventHandlers.handleGetDepartment());
+  document.getElementById("getAllDepartmentsBtn")?.addEventListener("click", () => eventHandlers.handleGetAllDepartments());
+  document.getElementById("searchStudentsBtn")?.addEventListener("click", () => eventHandlers.handleSearchStudents());
+  document.getElementById("addStudentBtn")?.addEventListener("click", () => eventHandlers.handleAddStudent());
+  document.getElementById("addDepartmentBtn")?.addEventListener("click", () => eventHandlers.handleAddDepartment());
+  document.getElementById("loadStudentForUpdateBtn")?.addEventListener("click", () => eventHandlers.handleLoadStudentForUpdate());
+  document.getElementById("updateStudentBtn")?.addEventListener("click", () => eventHandlers.handleUpdateStudent());
+  document.getElementById("deleteStudentBtn")?.addEventListener("click", () => eventHandlers.handleDeleteStudent());
+});
