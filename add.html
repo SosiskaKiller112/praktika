@@ -3,133 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Система управления базой данных студентов">
     <title>Students Database - Добавление данных</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Students Database</h1>
-            <nav class="nav">
-                <a href="index.html">Получение данных</a>
-                <a href="add.html" class="active">Добавление данных</a>
-            </nav>
-        </div>
+    <header class="header container">
+        <h1>Students Database</h1>
+        <nav class="nav" aria-label="Основная навигация">
+            <ul class="nav-list">
+                <li><a href="index.html" class="nav-link">Получение данных</a></li>
+                <li><a href="add.html" class="nav-link active" aria-current="page">Добавление данных</a></li>
+            </ul>
+        </nav>
+    </header>
 
+    <main class="container">
         <!-- Добавление студента -->
-        <div class="section">
-            <h3>Добавить студента</h3>
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="studentName">Полное имя:</label>
-                    <input type="text" id="studentName" placeholder="Иванов Иван Иванович">
+        <section class="section" aria-labelledby="add-student-heading">
+            <h2 id="add-student-heading">Добавить студента</h2>
+            <form id="addStudentForm" class="student-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="studentName">Полное имя:</label>
+                        <input type="text" id="studentName" name="studentName" placeholder="Иванов Иван Иванович" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="studentBirthDate">Дата рождения:</label>
+                        <input type="date" id="studentBirthDate" name="studentBirthDate" required>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="studentBirthDate">Дата рождения:</label>
-                    <input type="date" id="studentBirthDate">
+                <div class="form-row">
+                    <div class="form-group small">
+                        <label for="studentAdmissionYear">Год поступления:</label>
+                        <input type="number" id="studentAdmissionYear" name="studentAdmissionYear" 
+                               placeholder="2023" min="1900" max="2030" required>
+                    </div>
+                    <div class="form-group small">
+                        <label for="studentScholarship">Стипендия:</label>
+                        <input type="number" id="studentScholarship" name="studentScholarship" 
+                               placeholder="2000.00" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="studentDepartment">Департамент:</label>
+                        <select id="studentDepartment" name="studentDepartment" required>
+                            <option value="">Выберите департамент</option>
+                        </select>
+                    </div>
                 </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group small">
-                    <label for="studentAdmissionYear">Год поступления:</label>
-                    <input type="number" id="studentAdmissionYear" placeholder="2023" min="1900" max="2030">
-                </div>
-                <div class="form-group small">
-                    <label for="studentScholarship">Стипендия:</label>
-                    <input type="number" id="studentScholarship" placeholder="2000.00" step="0.01" min="0">
-                </div>
-                <div class="form-group">
-                    <label for="studentDepartment">Департамент:</label>
-                    <select id="studentDepartment">
-                        <option value="">Выберите департамент</option>
-                    </select>
-                </div>
-            </div>
-            <button onclick="addStudent()">Добавить студента</button>
-            <div id="addStudentResult" class="result-container"></div>
-        </div>
+                <button type="submit" class="btn-primary">Добавить студента</button>
+                <div id="addStudentResult" class="result-container" aria-live="polite"></div>
+            </form>
+        </section>
 
         <!-- Добавление департамента -->
-        <div class="section">
-            <h3>Добавить департамент</h3>
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="departmentName">Название:</label>
-                    <input type="text" id="departmentName" placeholder="Информационные технологии">
+        <section class="section" aria-labelledby="add-department-heading">
+            <h2 id="add-department-heading">Добавить департамент</h2>
+            <form id="addDepartmentForm" class="department-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="departmentName">Название:</label>
+                        <input type="text" id="departmentName" name="departmentName" 
+                               placeholder="Информационные технологии" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="departmentDean">Декан:</label>
+                        <input type="text" id="departmentDean" name="departmentDean" 
+                               placeholder="Профессор Иванов И.И." required>
+                    </div>
+                    <div class="form-group small">
+                        <label for="departmentBuilding">Корпус:</label>
+                        <input type="text" id="departmentBuilding" name="departmentBuilding" 
+                               placeholder="Корпус 1" required>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="departmentDean">Декан:</label>
-                    <input type="text" id="departmentDean" placeholder="Профессор Иванов И.И.">
-                </div>
-                <div class="form-group small">
-                    <label for="departmentBuilding">Корпус:</label>
-                    <input type="text" id="departmentBuilding" placeholder="Корпус 1">
-                </div>
-            </div>
-            <button onclick="addDepartment()">Добавить департамент</button>
-            <div id="addDepartmentResult" class="result-container"></div>
-        </div>
+                <button type="submit" class="btn-primary">Добавить департамент</button>
+                <div id="addDepartmentResult" class="result-container" aria-live="polite"></div>
+            </form>
+        </section>
 
         <!-- Обновление студента -->
-        <div class="section">
-            <h3>Обновить студента</h3>
-            <div class="form-row">
-                <div class="form-group small">
-                    <label for="updateStudentId">Student ID:</label>
-                    <input type="number" id="updateStudentId" placeholder="1">
+        <section class="section" aria-labelledby="update-student-heading">
+            <h2 id="update-student-heading">Обновить студента</h2>
+            <form id="updateStudentForm" class="student-form">
+                <div class="form-row">
+                    <div class="form-group small">
+                        <label for="updateStudentId">Student ID:</label>
+                        <input type="number" id="updateStudentId" name="updateStudentId" placeholder="1" required>
+                    </div>
+                    <button type="button" onclick="loadStudentForUpdate()" class="btn-secondary">Загрузить данные</button>
                 </div>
-                <button onclick="loadStudentForUpdate()">Загрузить данные</button>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="updateStudentName">Полное имя:</label>
-                    <input type="text" id="updateStudentName" placeholder="Иванов Иван Иванович">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="updateStudentName">Полное имя:</label>
+                        <input type="text" id="updateStudentName" name="updateStudentName" 
+                               placeholder="Иванов Иван Иванович" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="updateStudentBirthDate">Дата рождения:</label>
+                        <input type="date" id="updateStudentBirthDate" name="updateStudentBirthDate" required>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="updateStudentBirthDate">Дата рождения:</label>
-                    <input type="date" id="updateStudentBirthDate">
+                <div class="form-row">
+                    <div class="form-group small">
+                        <label for="updateStudentAdmissionYear">Год поступления:</label>
+                        <input type="number" id="updateStudentAdmissionYear" name="updateStudentAdmissionYear" 
+                               placeholder="2023" min="1900" max="2030" required>
+                    </div>
+                    <div class="form-group small">
+                        <label for="updateStudentScholarship">Стипендия:</label>
+                        <input type="number" id="updateStudentScholarship" name="updateStudentScholarship" 
+                               placeholder="2000.00" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="updateStudentDepartment">Департамент:</label>
+                        <select id="updateStudentDepartment" name="updateStudentDepartment" required>
+                            <option value="">Выберите департамент</option>
+                        </select>
+                    </div>
                 </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group small">
-                    <label for="updateStudentAdmissionYear">Год поступления:</label>
-                    <input type="number" id="updateStudentAdmissionYear" placeholder="2023">
-                </div>
-                <div class="form-group small">
-                    <label for="updateStudentScholarship">Стипендия:</label>
-                    <input type="number" id="updateStudentScholarship" placeholder="2000.00" step="0.01">
-                </div>
-                <div class="form-group">
-                    <label for="updateStudentDepartment">Департамент:</label>
-                    <select id="updateStudentDepartment">
-                        <option value="">Выберите департамент</option>
-                    </select>
-                </div>
-            </div>
-            <button onclick="updateStudent()">Обновить студента</button>
-            <div id="updateStudentResult" class="result-container"></div>
-        </div>
+                <button type="submit" class="btn-primary">Обновить студента</button>
+                <div id="updateStudentResult" class="result-container" aria-live="polite"></div>
+            </form>
+        </section>
 
         <!-- Удаление студента -->
-        <div class="section">
-            <h3>Удалить студента</h3>
-            <div class="form-row">
-                <div class="form-group small">
-                    <label for="deleteStudentId">Student ID:</label>
-                    <input type="number" id="deleteStudentId" placeholder="1">
+        <section class="section" aria-labelledby="delete-student-heading">
+            <h2 id="delete-student-heading">Удалить студента</h2>
+            <form id="deleteStudentForm" class="delete-form">
+                <div class="form-row">
+                    <div class="form-group small">
+                        <label for="deleteStudentId">Student ID:</label>
+                        <input type="number" id="deleteStudentId" name="deleteStudentId" placeholder="1" required>
+                    </div>
+                    <button type="submit" class="btn-danger">Удалить студента</button>
                 </div>
-                <button onclick="deleteStudent()" style="background: linear-gradient(135deg, #d32f2f 0%, #f44336 100%);">Удалить студента</button>
-            </div>
-            <div id="deleteStudentResult" class="result-container"></div>
-        </div>
-    </div>
+                <div id="deleteStudentResult" class="result-container" aria-live="polite"></div>
+            </form>
+        </section>
+    </main>
 
     <!-- API Monitor -->
-    <div class="sql-monitor">
-        <h4>API Мониторинг</h4>
-        <div id="apiLog"></div>
-    </div>
+    <aside class="sql-monitor container" aria-labelledby="api-monitor-heading">
+        <h3 id="api-monitor-heading">API Мониторинг</h3>
+        <div id="apiLog" aria-live="polite"></div>
+    </aside>
 
-    <script src="script.js"></script>
+    <script src="script.js" defer></script>
 </body>
 </html>
