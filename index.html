@@ -3,9 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Система управления базой данных студентов">
     <title>Students Database - Получение данных</title>
     <link rel="stylesheet" href="style.css">
     <style>
+        :root {
+            --primary-color: #4a9eff;
+            --primary-dark: #1565c0;
+            --primary-light: #64b5f6;
+            --background-dark: #0f1419;
+            --background-light: #1a1f2e;
+            --background-form: #1e2a3a;
+            --border-color: #2d3748;
+            --text-primary: #e1e5e9;
+            --text-secondary: #b0bec5;
+            --error-color: #f44336;
+            --success-color: #4caf50;
+            --warning-color: #ff9800;
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            --transition: all 0.3s ease;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -14,34 +32,41 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0f1419 0%, #1a1f2e 100%);
-            color: #e1e5e9;
+            background: linear-gradient(135deg, var(--background-dark) 0%, var(--background-light) 100%);
+            color: var(--text-primary);
             min-height: 100vh;
             padding: 20px;
+            line-height: 1.6;
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
+            padding: 0 15px;
         }
 
         .header {
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
             align-items: center;
             margin-bottom: 30px;
+            gap: 20px;
         }
 
         .nav {
             display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
         .nav a {
-            color: #4a9eff;
+            color: var(--primary-color);
             text-decoration: none;
             padding: 10px 20px;
             border-radius: 6px;
-            transition: background 0.3s ease;
+            transition: var(--transition);
+            font-weight: 500;
         }
 
         .nav a.active {
@@ -52,85 +77,90 @@
             background: rgba(74, 158, 255, 0.2);
         }
 
-        h1, h3 {
-            text-align: center;
-            margin-bottom: 30px;
-            color: #4a9eff;
-            font-size: 2.5em;
+        h1, h2, h3 {
+            color: var(--primary-color);
             text-shadow: 0 0 10px rgba(74, 158, 255, 0.3);
+            margin-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            text-align: center;
         }
 
         .section {
             background: rgba(26, 31, 46, 0.8);
-            border: 1px solid #2d3748;
+            border: 1px solid var(--border-color);
             border-radius: 10px;
             padding: 25px;
             margin-bottom: 25px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            box-shadow: var(--shadow);
         }
 
         .section h3 {
-            color: #64b5f6;
-            margin-bottom: 20px;
-            font-size: 1.4em;
+            color: var(--primary-light);
+            font-size: 1.4rem;
+            margin-bottom: 1.5rem;
         }
 
         .form-row {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .form-group {
+            gap: 15px;
             margin-bottom: 15px;
         }
 
+        .form-group {
+            flex: 1 1 auto;
+            min-width: 200px;
+        }
+
         .form-group.small {
-            width: 100px;
+            flex: 0 0 120px;
         }
 
         label {
             display: block;
-            margin-bottom: 5px;
-            color: #b0bec5;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
             font-weight: 500;
         }
 
         input, select, textarea {
             width: 100%;
             padding: 12px;
-            background: #1e2a3a;
-            border: 1px solid #3d4852;
+            background: var(--background-form);
+            border: 1px solid var(--border-color);
             border-radius: 6px;
-            color: #e1e5e9;
-            font-size: 14px;
-            transition: border-color 0.3s ease;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: var(--transition);
         }
 
         input:focus, select:focus, textarea:focus {
             outline: none;
-            border-color: #4a9eff;
+            border-color: var(--primary-color);
             box-shadow: 0 0 0 2px rgba(74, 158, 255, 0.2);
         }
 
         button {
-            background: linear-gradient(135deg, #1565c0 0%, #2196f3 100%);
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
             color: white;
             border: none;
             padding: 12px 24px;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 1rem;
             font-weight: 500;
-            margin-right: 10px;
-            margin-bottom: 10px;
-            transition: all 0.3s ease;
+            transition: var(--transition);
             box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+            height: fit-content;
+            align-self: flex-end;
         }
 
         button:hover {
             background: linear-gradient(135deg, #0d47a1 0%, #1976d2 100%);
-            transform: translateY(-1px);
+            transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4);
         }
 
@@ -145,8 +175,8 @@
         }
 
         .result-container {
-            background: #0f1419;
-            border: 1px solid #2d3748;
+            background: var(--background-dark);
+            border: 1px solid var(--border-color);
             border-radius: 6px;
             padding: 15px;
             margin-top: 20px;
@@ -165,190 +195,453 @@
         }
 
         th, td {
-            padding: 10px;
+            padding: 12px;
             text-align: left;
-            border-bottom: 1px solid #2d3748;
+            border-bottom: 1px solid var(--border-color);
         }
 
         th {
-            background: #1a1f2e;
-            color: #4a9eff;
+            background: var(--background-light);
+            color: var(--primary-color);
             font-weight: 600;
+            position: sticky;
+            top: 0;
         }
 
         tr:hover {
             background: rgba(74, 158, 255, 0.1);
         }
 
-        .error {
-            color: #f44336;
-            background: rgba(244, 67, 54, 0.1);
-            padding: 10px;
+        .message {
+            padding: 12px;
             border-radius: 6px;
-            border-left: 4px solid #f44336;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .message::before {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+
+        .error {
+            color: var(--error-color);
+            background: rgba(244, 67, 54, 0.1);
+            border-left: 4px solid var(--error-color);
+        }
+
+        .error::before {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23f44336'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z'/%3E%3C/svg%3E");
         }
 
         .success {
-            color: #4caf50;
+            color: var(--success-color);
             background: rgba(76, 175, 80, 0.1);
-            padding: 10px;
-            border-radius: 6px;
-            border-left: 4px solid #4caf50;
+            border-left: 4px solid var(--success-color);
+        }
+
+        .success::before {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234caf50'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z'/%3E%3C/svg%3E");
         }
 
         .loading {
-            color: #ff9800;
+            color: var(--warning-color);
             text-align: center;
             padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 152, 0, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--warning-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         .sql-monitor {
             background: rgba(26, 31, 46, 0.8);
-            border: 1px solid #2d3748;
+            border: 1px solid var(--border-color);
             border-radius: 10px;
             padding: 25px;
             margin-top: 20px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            box-shadow: var(--shadow);
+        }
+
+        .sql-monitor h4 {
+            color: var(--primary-light);
+            margin-bottom: 15px;
+        }
+
+        #apiLog {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            max-height: 200px;
+            overflow-y: auto;
+            background: var(--background-dark);
+            padding: 10px;
+            border-radius: 4px;
         }
 
         @media (max-width: 768px) {
-            .container {
-                padding: 10px;
+            .header {
+                flex-direction: column;
+                text-align: center;
             }
             
             .section {
                 padding: 15px;
             }
             
-            .button-group {
-                flex-direction: column;
+            .form-group {
+                min-width: 100%;
             }
             
             button {
-                margin-right: 0;
+                width: 100%;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Students Database</h1>
-            <nav class="nav">
-                <a href="index.html" class="active">Получение данных</a>
-                <a href="add.html">Добавление данных</a>
-            </nav>
-        </div>
+    <header class="header container">
+        <h1>Students Database</h1>
+        <nav class="nav" aria-label="Основная навигация">
+            <a href="index.html" class="active" aria-current="page">Получение данных</a>
+            <a href="add.html">Добавление данных</a>
+        </nav>
+    </header>
 
+    <main class="container">
         <!-- Получение студента по ID -->
-        <div class="section">
-            <h3>Получить студента по ID</h3>
-            <div class="form-row">
-                <div class="form-group small">
-                    <label for="studentId">Student ID:</label>
-                    <input type="number" id="studentId" placeholder="1">
+        <section class="section" aria-labelledby="get-student-heading">
+            <h3 id="get-student-heading">Получить студента по ID</h3>
+            <form id="getStudentForm" class="student-form">
+                <div class="form-row">
+                    <div class="form-group small">
+                        <label for="studentId">Student ID:</label>
+                        <input type="number" id="studentId" name="studentId" placeholder="1" min="1" required>
+                    </div>
+                    <button type="submit">Получить студента</button>
                 </div>
-                <button onclick="getStudent()">Получить студента</button>
-            </div>
-            <div id="studentResult" class="result-container"></div>
-        </div>
+                <div id="studentResult" class="result-container" aria-live="polite"></div>
+            </form>
+        </section>
 
         <!-- Получение всех студентов -->
-        <div class="section">
-            <h3>Получить всех студентов</h3>
-            <div class="form-row">
-                <div class="form-group small">
-                    <label for="studentsLimit">Лимит:</label>
-                    <input type="number" id="studentsLimit" placeholder="50" value="50">
+        <section class="section" aria-labelledby="all-students-heading">
+            <h3 id="all-students-heading">Получить всех студентов</h3>
+            <form id="allStudentsForm" class="student-form">
+                <div class="form-row">
+                    <div class="form-group small">
+                        <label for="studentsLimit">Лимит:</label>
+                        <input type="number" id="studentsLimit" name="studentsLimit" placeholder="50" value="50" min="1" max="1000" required>
+                    </div>
+                    <button type="submit">Получить всех</button>
                 </div>
-                <button onclick="getAllStudents()">Получить всех</button>
-            </div>
-            <div id="studentsResult" class="result-container"></div>
-        </div>
+                <div id="studentsResult" class="result-container" aria-live="polite"></div>
+            </form>
+        </section>
 
         <!-- Получение студентов по департаменту -->
-        <div class="section">
-            <h3>Студенты по департаменту</h3>
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="departmentSelect">Департамент:</label>
-                    <select id="departmentSelect">
-                        <option value="">Выберите департамент</option>
-                    </select>
+        <section class="section" aria-labelledby="dept-students-heading">
+            <h3 id="dept-students-heading">Студенты по департаменту</h3>
+            <form id="deptStudentsForm" class="student-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="departmentSelect">Департамент:</label>
+                        <select id="departmentSelect" name="departmentSelect" required>
+                            <option value="">Выберите департамент</option>
+                        </select>
+                    </div>
+                    <button type="submit">Получить студентов</button>
                 </div>
-                <button onclick="getStudentsByDepartment()">Получить студентов</button>
-            </div>
-            <div id="departmentStudentsResult" class="result-container"></div>
-        </div>
+                <div id="departmentStudentsResult" class="result-container" aria-live="polite"></div>
+            </form>
+        </section>
 
         <!-- Получение департамента по ID -->
-        <div class="section">
-            <h3>Получить департамент по ID</h3>
-            <div class="form-row">
-                <div class="form-group small">
-                    <label for="departmentId">Department ID:</label>
-                    <input type="number" id="departmentId" placeholder="1">
+        <section class="section" aria-labelledby="get-dept-heading">
+            <h3 id="get-dept-heading">Получить департамент по ID</h3>
+            <form id="getDeptForm" class="dept-form">
+                <div class="form-row">
+                    <div class="form-group small">
+                        <label for="departmentId">Department ID:</label>
+                        <input type="number" id="departmentId" name="departmentId" placeholder="1" min="1" required>
+                    </div>
+                    <button type="submit">Получить департамент</button>
                 </div>
-                <button onclick="getDepartment()">Получить департамент</button>
-            </div>
-            <div id="departmentResult" class="result-container"></div>
-        </div>
+                <div id="departmentResult" class="result-container" aria-live="polite"></div>
+            </form>
+        </section>
 
         <!-- Получение всех департаментов -->
-        <div class="section">
-            <h3>Получить все департаменты</h3>
-            <div class="form-row">
-                <button onclick="getAllDepartments()">Получить все департаменты</button>
-            </div>
-            <div id="departmentsResult" class="result-container"></div>
-        </div>
+        <section class="section" aria-labelledby="all-depts-heading">
+            <h3 id="all-depts-heading">Получить все департаменты</h3>
+            <form id="allDeptsForm" class="dept-form">
+                <div class="form-row">
+                    <button type="submit">Получить все департаменты</button>
+                </div>
+                <div id="departmentsResult" class="result-container" aria-live="polite"></div>
+            </form>
+        </section>
 
         <!-- Поиск студентов -->
-        <div class="section">
-            <h3>Поиск студентов</h3>
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="searchQuery">Поиск по имени:</label>
-                    <input type="text" id="searchQuery" placeholder="Введите имя студента">
+        <section class="section" aria-labelledby="search-students-heading">
+            <h3 id="search-students-heading">Поиск студентов</h3>
+            <form id="searchStudentsForm" class="student-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="searchQuery">Поиск по имени:</label>
+                        <input type="text" id="searchQuery" name="searchQuery" placeholder="Введите имя студента" required>
+                    </div>
+                    <button type="submit">Найти</button>
                 </div>
-                <button onclick="searchStudents()">Найти</button>
-            </div>
-            <div id="searchResult" class="result-container"></div>
-        </div>
-    </div>
+                <div id="searchResult" class="result-container" aria-live="polite"></div>
+            </form>
+        </section>
+    </main>
 
-    <!-- SQL Monitor -->
-    <div class="sql-monitor">
-        <h4>API Мониторинг</h4>
-        <div id="apiLog"></div>
-    </div>
+    <!-- API Monitor -->
+    <aside class="sql-monitor container" aria-labelledby="api-monitor-heading">
+        <h4 id="api-monitor-heading">API Мониторинг</h4>
+        <div id="apiLog" aria-live="polite"></div>
+    </aside>
 
-    <script src="script.js"></script>
+    <script src="script.js" defer></script>
     <script>
         // Базовый URL для API (замените на ваш)
         const API_BASE_URL = 'http://localhost:3000/api';
+        
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', () => {
+            // Загрузка департаментов для выпадающего списка
+            loadDepartments();
+            
+            // Назначение обработчиков форм
+            setupFormHandlers();
+        });
+
+        // Загрузка списка департаментов
+        async function loadDepartments() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/departments`);
+                if (!response.ok) throw new Error('Ошибка загрузки департаментов');
+                
+                const departments = await response.json();
+                const select = document.getElementById('departmentSelect');
+                
+                // Очистка и добавление новых опций
+                select.innerHTML = '<option value="">Выберите департамент</option>';
+                departments.forEach(dept => {
+                    const option = document.createElement('option');
+                    option.value = dept.id;
+                    option.textContent = dept.name;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Ошибка при загрузке департаментов:', error);
+            }
+        }
+
+        // Настройка обработчиков форм
+        function setupFormHandlers() {
+            document.getElementById('getStudentForm').addEventListener('submit', handleGetStudent);
+            document.getElementById('allStudentsForm').addEventListener('submit', handleGetAllStudents);
+            document.getElementById('deptStudentsForm').addEventListener('submit', handleGetStudentsByDepartment);
+            document.getElementById('getDeptForm').addEventListener('submit', handleGetDepartment);
+            document.getElementById('allDeptsForm').addEventListener('submit', handleGetAllDepartments);
+            document.getElementById('searchStudentsForm').addEventListener('submit', handleSearchStudents);
+        }
+
+        // Обработчик получения студента по ID
+        async function handleGetStudent(e) {
+            e.preventDefault();
+            const studentId = document.getElementById('studentId').value;
+            const resultContainer = document.getElementById('studentResult');
+            
+            showLoading(resultContainer);
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/student/${studentId}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    displayResult(resultContainer, [data]);
+                    logApiCall(`GET /student/${studentId}`, data);
+                } else {
+                    showError(resultContainer, data.message || 'Ошибка получения данных');
+                }
+            } catch (error) {
+                showError(resultContainer, 'Ошибка соединения с сервером');
+                console.error('Ошибка:', error);
+            }
+        }
+
+        // Обработчик получения всех студентов
+        async function handleGetAllStudents(e) {
+            e.preventDefault();
+            const limit = document.getElementById('studentsLimit').value;
+            const resultContainer = document.getElementById('studentsResult');
+            
+            showLoading(resultContainer);
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/students?limit=${limit}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    displayResult(resultContainer, data);
+                    logApiCall(`GET /students?limit=${limit}`, data);
+                } else {
+                    showError(resultContainer, data.message || 'Ошибка получения данных');
+                }
+            } catch (error) {
+                showError(resultContainer, 'Ошибка соединения с сервером');
+                console.error('Ошибка:', error);
+            }
+        }
+
+        // Обработчик получения студентов по департаменту
+        async function handleGetStudentsByDepartment(e) {
+            e.preventDefault();
+            const deptId = document.getElementById('departmentSelect').value;
+            const resultContainer = document.getElementById('departmentStudentsResult');
+            
+            if (!deptId) {
+                showError(resultContainer, 'Выберите департамент');
+                return;
+            }
+            
+            showLoading(resultContainer);
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/students/department/${deptId}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    displayResult(resultContainer, data);
+                    logApiCall(`GET /students/department/${deptId}`, data);
+                } else {
+                    showError(resultContainer, data.message || 'Ошибка получения данных');
+                }
+            } catch (error) {
+                showError(resultContainer, 'Ошибка соединения с сервером');
+                console.error('Ошибка:', error);
+            }
+        }
+
+        // Обработчик получения департамента по ID
+        async function handleGetDepartment(e) {
+            e.preventDefault();
+            const deptId = document.getElementById('departmentId').value;
+            const resultContainer = document.getElementById('departmentResult');
+            
+            showLoading(resultContainer);
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/department/${deptId}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    displayResult(resultContainer, [data]);
+                    logApiCall(`GET /department/${deptId}`, data);
+                } else {
+                    showError(resultContainer, data.message || 'Ошибка получения данных');
+                }
+            } catch (error) {
+                showError(resultContainer, 'Ошибка соединения с сервером');
+                console.error('Ошибка:', error);
+            }
+        }
+
+        // Обработчик получения всех департаментов
+        async function handleGetAllDepartments(e) {
+            e.preventDefault();
+            const resultContainer = document.getElementById('departmentsResult');
+            
+            showLoading(resultContainer);
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/departments`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    displayResult(resultContainer, data);
+                    logApiCall('GET /departments', data);
+                    // Обновляем список департаментов в выпадающем списке
+                    loadDepartments();
+                } else {
+                    showError(resultContainer, data.message || 'Ошибка получения данных');
+                }
+            } catch (error) {
+                showError(resultContainer, 'Ошибка соединения с сервером');
+                console.error('Ошибка:', error);
+            }
+        }
+
+        // Обработчик поиска студентов
+        async function handleSearchStudents(e) {
+            e.preventDefault();
+            const query = document.getElementById('searchQuery').value;
+            const resultContainer = document.getElementById('searchResult');
+            
+            showLoading(resultContainer);
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/students/search?query=${encodeURIComponent(query)}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    displayResult(resultContainer, data);
+                    logApiCall(`GET /students/search?query=${query}`, data);
+                } else {
+                    showError(resultContainer, data.message || 'Ошибка выполнения запроса');
+                }
+            } catch (error) {
+                showError(resultContainer, 'Ошибка соединения с сервером');
+                console.error('Ошибка:', error);
+            }
+        }
 
         // Функция для отображения загрузки
-        function showLoading(containerId) {
-            document.getElementById(containerId).innerHTML = '<div class="loading">Загрузка...</div>';
+        function showLoading(container) {
+            container.innerHTML = '<div class="loading">Загрузка...</div>';
         }
 
         // Функция для отображения ошибки
-        function showError(containerId, message) {
-            document.getElementById(containerId).innerHTML = `<div class="error">Ошибка: ${message}</div>`;
+        function showError(container, message) {
+            container.innerHTML = `<div class="message error">${message}</div>`;
         }
 
-        // Функция для отображения успеха
-        function showSuccess(containerId, message) {
-            document.getElementById(containerId).innerHTML = `<div class="success">${message}</div>`;
+        // Функция для отображения результата
+        function displayResult(container, data) {
+            if (!data || data.length === 0) {
+                container.innerHTML = '<div class="message">Нет данных для отображения</div>';
+                return;
+            }
+
+            container.innerHTML = createTable(data);
         }
 
         // Функция для создания таблицы из данных
         function createTable(data) {
-            if (!data || data.length === 0) {
-                return '<div class="error">Нет данных для отображения</div>';
-            }
-
             const headers = Object.keys(data[0]);
             let html = '<table><thead><tr>';
             
@@ -361,7 +654,8 @@
             data.forEach(row => {
                 html += '<tr>';
                 headers.forEach(header => {
-                    html += `<td>${row[header] || ''}</td>`;
+                    const value = row[header];
+                    html += `<td>${value !== null && value !== undefined ? value : '-'}</td>`;
                 });
                 html += '</tr>';
             });
@@ -370,137 +664,22 @@
             return html;
         }
 
-        // Получить студента по ID
-        async function getStudent() {
-            const studentId = document.getElementById('studentId').value;
-            if (!studentId) {
-                showError('studentResult', 'Введите Student ID');
-                return;
-            }
-
-            showLoading('studentResult');
+        // Логирование API вызовов
+        function logApiCall(endpoint, data) {
+            const logContainer = document.getElementById('apiLog');
+            const logEntry = document.createElement('div');
+            const timestamp = new Date().toLocaleTimeString();
             
-            try {
-                const response = await fetch(`${API_BASE_URL}/student/${studentId}`);
-                const data = await response.json();
-                
-                if (response.ok) {
-                    document.getElementById('studentResult').innerHTML = createTable([data]);
-                } else {
-                    showError('studentResult', data.message || 'Ошибка получения данных');
-                }
-            } catch (error) {
-                showError('studentResult', 'Ошибка соединения с сервером');
-            }
-        }
-
-        // Получить всех студентов
-        async function getAllStudents() {
-            const studentsLimit = document.getElementById('studentsLimit').value;
+            logEntry.innerHTML = `
+                <div><strong>${timestamp}</strong> ${endpoint}</div>
+                <div>Результат: ${data.length || 1} записей</div>
+            `;
             
-            showLoading('studentsResult');
+            logContainer.prepend(logEntry);
             
-            try {
-                const response = await fetch(`${API_BASE_URL}/students?limit=${studentsLimit}`);
-                const data = await response.json();
-                
-                if (response.ok) {
-                    document.getElementById('studentsResult').innerHTML = createTable(data);
-                } else {
-                    showError('studentsResult', data.message || 'Ошибка получения данных');
-                }
-            } catch (error) {
-                showError('studentsResult', 'Ошибка соединения с сервером');
-            }
-        }
-
-        // Получить студентов по департаменту
-        async function getStudentsByDepartment() {
-            const departmentSelect = document.getElementById('departmentSelect').value;
-            if (!departmentSelect) {
-                showError('departmentStudentsResult', 'Выберите департамент');
-                return;
-            }
-
-            showLoading('departmentStudentsResult');
-            
-            try {
-                const response = await fetch(`${API_BASE_URL}/students/department/${departmentSelect}`);
-                const data = await response.json();
-                
-                if (response.ok) {
-                    document.getElementById('departmentStudentsResult').innerHTML = createTable(data);
-                } else {
-                    showError('departmentStudentsResult', data.message || 'Ошибка получения данных');
-                }
-            } catch (error) {
-                showError('departmentStudentsResult', 'Ошибка соединения с сервером');
-            }
-        }
-
-        // Получить департамент по ID
-        async function getDepartment() {
-            const departmentId = document.getElementById('departmentId').value;
-            if (!departmentId) {
-                showError('departmentResult', 'Введите Department ID');
-                return;
-            }
-
-            showLoading('departmentResult');
-            
-            try {
-                const response = await fetch(`${API_BASE_URL}/department/${departmentId}`);
-                const data = await response.json();
-                
-                if (response.ok) {
-                    document.getElementById('departmentResult').innerHTML = createTable([data]);
-                } else {
-                    showError('departmentResult', data.message || 'Ошибка получения данных');
-                }
-            } catch (error) {
-                showError('departmentResult', 'Ошибка соединения с сервером');
-            }
-        }
-
-        // Получить все департаменты
-        async function getAllDepartments() {
-            showLoading('departmentsResult');
-            
-            try {
-                const response = await fetch(`${API_BASE_URL}/departments`);
-                const data = await response.json();
-                
-                if (response.ok) {
-                    document.getElementById('departmentsResult').innerHTML = createTable(data);
-                } else {
-                    showError('departmentsResult', data.message || 'Ошибка получения данных');
-                }
-            } catch (error) {
-                showError('departmentsResult', 'Ошибка соединения с сервером');
-            }
-        }
-
-        // Поиск студентов
-        async function searchStudents() {
-            const searchQuery = document.getElementById('searchQuery').value;
-            if (!searchQuery) {
-                showError('searchResult', 'Введите имя студента');
-                return;
-            }
-
-            showLoading('searchResult');
-            
-            try {
-                const response = await fetch(`${API_BASE_URL}/students/search?query=${searchQuery}`);
-                const data = await response.json();
-                
-                if (response.ok) {
-                    document.getElementById('searchResult').innerHTML = createTable(data);
-                } else {
-                    showError('searchResult', data.message || 'Ошибка выполнения запроса');
-                }
-            } catch (error) {
-                showError('searchResult', 'Ошибка соединения с сервером');
+            // Ограничиваем количество записей в логе
+            if (logContainer.children.length > 10) {
+                logContainer.removeChild(logContainer.lastChild);
             }
         }
     </script>
