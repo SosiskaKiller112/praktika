@@ -2,7 +2,20 @@
   "name": "my-v0-project",
   "version": "0.1.0",
   "private": true,
+  "description": "My project description",
+  "main": "index.js",
   "scripts": {
-    "build": "echo 'no build script'"
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "build": "echo 'Build process not configured yet' && exit 0",
+    "test": "echo 'Error: no test specified' && exit 0",
+    "lint": "eslint .",
+    "format": "prettier --write ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "engines": {
+    "node": ">=14.0.0"
   }
 }
